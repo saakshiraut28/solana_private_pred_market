@@ -7,18 +7,16 @@ use state::*;
 declare_id!("6Q1Tj3ef6vEYkRbNh96pkP6WL6ktqq2YNhBb1ntJLudg");
 
 #[program]
-pub mod solana_prediction_market {
+pub mod solana_private_prediction_market {
     use super::*;
 
     pub fn create_market(
         ctx: Context<CreateMarket>,
         question: String,
-        kalshi_market_id: String,
         liquidity_param: u64,
         end_time: i64,
     ) -> Result<()> {
         require!(question.len() <= 200, ErrorCode::QuestionTooLong);
-        require!(kalshi_market_id.len() <= 50, ErrorCode::IdTooLong);
         require!(liquidity_param > 0, ErrorCode::InvalidLiquidity);
         require!(end_time > Clock::get()?.unix_timestamp, ErrorCode::InvalidEndTime);
 
@@ -27,7 +25,6 @@ pub mod solana_prediction_market {
 
         market.creator = ctx.accounts.creator.key();
         market.question = question;
-        market.kalshi_market_id = kalshi_market_id;
         market.liquidity_param = liquidity_param;
         market.end_time = end_time;
         market.resolved = false;
@@ -55,7 +52,6 @@ pub mod solana_prediction_market {
         )?;
 
         msg!("Market created: {}", market.question);
-        msg!("Kalshi ID: {}", market.kalshi_market_id);
 
         Ok(())
     }
@@ -259,7 +255,7 @@ fn calculate_probability(
 }
 
 #[derive(Accounts)]
-#[instruction(question: String, kalshi_market_id: String)]
+#[instruction(question: String)]
 pub struct CreateMarket<'info> {
     #[account(
         init,
@@ -268,7 +264,6 @@ pub struct CreateMarket<'info> {
         seeds = [
             b"market",
             creator.key().as_ref(),
-            kalshi_market_id.as_bytes()
         ],
         bump
     )]
