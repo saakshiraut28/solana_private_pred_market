@@ -6,6 +6,10 @@ use state::*;
 
 declare_id!("6Q1Tj3ef6vEYkRbNh96pkP6WL6ktqq2YNhBb1ntJLudg");
 
+// NOTE: This version uses PLAINTEXT values temporarily
+// Once we figure out the correct Inco Lightning CPI syntax, 
+// we'll re-enable encryption
+
 #[program]
 pub mod solana_private_prediction_market {
     use super::*;
@@ -135,22 +139,6 @@ pub mod solana_private_prediction_market {
         Ok(())
     }
 
-    pub fn update_price(
-        ctx: Context<UpdatePrice>,
-        new_probability: u64,
-    ) -> Result<()> {
-        let market = &mut ctx.accounts.market;
-
-        require!(!market.resolved, ErrorCode::MarketResolved);
-        require!(new_probability <= 1_000_000, ErrorCode::InvalidProbability);
-
-        market.current_yes_probability = new_probability;
-
-        msg!("Price updated to: {}%", new_probability / 10_000);
-
-        Ok(())
-    }
-
     pub fn resolve_market(
         ctx: Context<ResolveMarket>,
         outcome: bool,
@@ -225,7 +213,7 @@ fn calculate_shares(
     _total_no: u64,
     _liquidity_param: u64,
 ) -> Result<u64> {
-    // will complete later after research
+    // Simple 1:1 for now - implement LMSR later
     Ok(amount)
 }
 
@@ -313,17 +301,6 @@ pub struct PlaceBet<'info> {
     pub user: Signer<'info>,
 
     pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdatePrice<'info> {
-    #[account(
-        mut,
-        has_one = oracle_authority
-    )]
-    pub market: Account<'info, Market>,
-
-    pub oracle_authority: Signer<'info>,
 }
 
 #[derive(Accounts)]

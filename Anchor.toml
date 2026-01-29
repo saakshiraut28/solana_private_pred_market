@@ -8,6 +8,9 @@ skip-lint = false
 [programs.localnet]
 solana_private_prediction_market = "6Q1Tj3ef6vEYkRbNh96pkP6WL6ktqq2YNhBb1ntJLudg"
 
+[programs.devnet]
+inco_lightning = "5sjEbPiqgZrYwR31ahR6Uk9wf5awoX61YGg7jExQSwaj"
+
 [registry]
 url = "https://api.apr.dev"
 
